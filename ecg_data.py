@@ -28,6 +28,18 @@ class DataGetter:
                     qrs_width='pm_qrswidth'
                 )
             ),
+            daePmName=dict(
+                path='MM_classifier/allname.mat',
+                keys=dict(
+                    case_name='pmcasename'  # Seems redundant for already part of `daePm`
+                )
+            ),
+            daePmFw=dict(
+                path='MM_classifier/freewall.mat',
+                keys=dict(
+                    case_name='pmcasename1'  # TODO: Is this info somewhere else too?
+                )
+            ),
             daeVt=dict(
                 path='MM_classifier/vtdata.mat',
                 keys=dict(
@@ -171,19 +183,7 @@ class DataGetter:
                     name='rvna',
                     pat_num='rvpat'
                 )
-            ),
-            daePmName=dict(
-                path='MM_classifier/allname.mat',
-                keys=dict(
-                    case_name='pmcasename'  # Seems redundant for already part of `daePm`
-                )
-            ),
-            daePmFw=dict(
-                path='MM_classifier/freewall.mat',
-                keys=dict(
-                    case_name='pmcasename1'  # TODO: Is this info somewhere else too?
-                )
-            ),
+            )
         )
 
         def __init__(self, d_nm: str):
@@ -201,10 +201,30 @@ class DataGetter:
             for k, v in self.key_map.items():
                 self.d[k] = mat[v]
 
+            self.meta = dict(
+                dim_ecg=None,
+                num_pat=None,
+                n=None
+            )
+
             for k, data in self.d.items():
                 s = data.shape
+
                 if 1 in s:
-                    self.d[k] = data.reshape(tuple(filter(lambda x: x != 1, s)))
+                    self.d[k] = data = data.reshape(tuple(filter(lambda x: x != 1, s)))
+                    s = data.shape
+
+                if len(s) == 2:  # Expect ecg signal
+                    self.meta['dim_ecg'] = s[-1]
+
+                self.meta['n'] = s[0]
+
+                # Deals with how data is stored in the .mat files
+                if data.dtype is np.dtype('O') and data[0].dtype.type is np.str_:
+                    self.d[k] = data = np.vectorize(lambda x: x[0])(data)
+
+                if data.dtype.type is np.str_ and data[0].endswith('.mat'):
+                    self.d[k] = np.vectorize(lambda x: x.removesuffix('.mat'))(data)
 
             if d_nm == 'daeRaw':
                 def w(x):
@@ -223,6 +243,34 @@ class DataGetter:
                 for k in keys:
                     self.d[c(k)] = case_names.d[k]
                 self.keys += list(map(c, keys))
+
+            def _get_num_patient():
+                def _get(k='name'):
+                    # return np.unique(dg(f'{d_nm}.{k}')).size
+                    return np.unique(self.d[k]).size
+
+                def _get_names(arr):
+                    return np.vectorize(lambda x: re.match(r'([0-9]+)_', x).groups()[0])(arr)
+
+                def _get_raw():
+                    d = dict()
+                    for key in ['vt', 'pvc', 'pm']:
+                        key_nm = f'{key}_case_name'
+                        d[key] = np.unique(_get_names(self.d[key_nm])).size
+                    return d
+
+                if d_nm in ['daeVt', 'daePm', 'daePmCtrl', 'daePvcCtrl', 'daePmSlope', 'daeVtSlope', 'daeLv', 'daeRv']:
+                    return _get()
+                elif d_nm in ['daeRaw']:
+                    return _get_raw()
+                elif d_nm in ['daeVtSlope32', 'daeSimul', 'daePmLst', 'daeVtLst']:
+                    return _get(k='pat_num')
+                elif d_nm in ['daeSup', 'daeInf', 'daePmName', 'daePmFw']:
+                    return np.unique(_get_names(self.d['case_name'])).size
+                else:
+                    return None
+
+            self.meta['num_pat'] = _get_num_patient()
 
         def __getitem__(self, k):
             """
@@ -260,6 +308,8 @@ class DataGetter:
                 else:
                     ic(k, s, view[:n])
             ic('\n')
+
+    DSETS = list(Dataset.D.keys())
 
     def __call__(self, k: Union[str, list]):
         """
