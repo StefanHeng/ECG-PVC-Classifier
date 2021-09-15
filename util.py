@@ -29,3 +29,30 @@ def plot_single(arr, label):
     by_label = dict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
     plt.show()
+
+
+def plot_ecg(arr, title):
+    """
+    Assumes arr is concatenated 1D array of 12-lead signals
+    """
+    n = 12
+    height = 1e4
+
+    arr = arr.reshape(n, -1)
+    plt.figure(figsize=(5, 13), constrained_layout=True)
+
+    ylb_ori = ((np.arange(n) - n + 1) * height)[::-1]
+    ylb_new = ['I', 'II', 'III', 'avR', 'avL', 'avF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6']
+    for i, row in enumerate(arr):
+        offset = height * i
+        x = np.arange(row.size)
+        y = row - offset
+        plt.plot(x, y, label=ylb_new[i], marker='o', markersize=0.3, linewidth=0.25)
+        plt.axhline(y=-offset, lw=0.2)
+
+    plt.title(title)
+    plt.yticks(ylb_ori, ylb_new)
+    handles, labels = plt.gca().get_legend_handles_labels()  # Distinct labels
+    by_label = dict(zip(labels, handles))
+    plt.legend(by_label.values(), by_label.keys(), bbox_to_anchor=(1.05, 1))
+    plt.show()

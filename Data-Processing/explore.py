@@ -1,11 +1,15 @@
 import numpy as np
+import pandas as pd
 
 import os
 import scipy.io
 
-from ecg_data import DataGetter
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 from icecream import ic
+
+from util import *
+from ecg_data import DataGetter
 
 
 def pprint(m):
@@ -20,6 +24,8 @@ def pprint(m):
 if __name__ == '__main__':
     os.chdir('../../PVC_DATA')
 
+    dg = DataGetter()
+
     # mat = scipy.io.loadmat('MM_classifier/vtlist_matlab_dyj.mat')
     # pprint(mat)
     #
@@ -28,5 +34,20 @@ if __name__ == '__main__':
     # dset.overview()
 
     # Content of all files at glance
-    for k in DataGetter.Dataset.D:
-        DataGetter()(k).overview()
+    # for k in dg.DSETS:
+    #     DataGetter()(k).overview()
+    #
+    # for dnm in dg.DSETS:
+    #     d = dg(dnm)
+    #     ic(dnm, d.path, d.meta)
+    #
+    # d = dg(['daeRaw', 0])
+    # arr = d['vt'][:d['vt_width']]
+    # assert np.count_nonzero(~np.isnan(arr)) == arr.size
+    # ic(arr)
+    # plot_single(arr, 'daeRaw.0')
+
+    d = dg(['daeVt', 0])
+    arr = d['ecg']
+    ic(arr.shape)
+    plot_ecg(arr, 'daeVt.0')
