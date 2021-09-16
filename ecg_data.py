@@ -307,7 +307,7 @@ class DataGetter:
                     ic(k, self.key_map[k], s, view[:n])
                 else:
                     ic(k, s, view[:n])
-            ic('\n')
+            ic('\n')  # built-in `print` isn't synchronized
 
     DSETS = list(Dataset.D.keys())
 

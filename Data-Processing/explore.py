@@ -34,12 +34,12 @@ if __name__ == '__main__':
     # dset.overview()
 
     # Content of all files at glance
-    # for k in dg.DSETS:
-    #     DataGetter()(k).overview()
-    #
-    # for dnm in dg.DSETS:
-    #     d = dg(dnm)
-    #     ic(dnm, d.path, d.meta)
+    for k in dg.DSETS:
+        DataGetter()(k).overview()
+
+    for dnm in dg.DSETS:
+        d = dg(dnm)
+        ic(dnm, d.path, d.meta)
     #
     # d = dg(['daeRaw', 0])
     # arr = d['vt'][:d['vt_width']]
