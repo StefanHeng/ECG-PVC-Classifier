@@ -129,9 +129,16 @@ if __name__ == '__main__':
     # a_norm = a / np.sqrt(es[:, None])
     # ic(a_norm, np.sum(np.square(a_norm), axis=-1))
 
-    a = 'asdhjlasd'
-    for i in a:
-        ic(i)
+    # a = 'asdhjlasd'
+    # for i in a:
+    #     ic(i)
+
+    # np.random.seed(7)
+    #
+    # ic(np.random.randint(20, size=10))
+
+    import seaborn as sns
+    ic(sns.color_palette())
 
 
 
