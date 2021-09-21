@@ -37,7 +37,7 @@ def plot_single(arr, label):
     plt.show()
 
 
-def plot_ecg(arr, title='ECG 12-lead plot'):
+def plot_ecg(arr, title=None):
     """
     Assumes arr is concatenated 1D array of 12-lead signals
     """
@@ -56,7 +56,12 @@ def plot_ecg(arr, title='ECG 12-lead plot'):
         plt.plot(x, y, label=ylb_new[i], marker='o', markersize=0.3, linewidth=0.25)
         plt.axhline(y=-offset, lw=0.2)
 
+    t = 'ECG 12-lead plot'
+    if title:
+        t = f'{t}, {title}'
     plt.title(title)
+    plt.xlabel('Time, normalized')
+    plt.ylabel('Volt, normalized')
     plt.yticks(ylb_ori, ylb_new)
     handles, labels = plt.gca().get_legend_handles_labels()  # Distinct labels
     by_label = dict(zip(labels, handles))
@@ -64,12 +69,13 @@ def plot_ecg(arr, title='ECG 12-lead plot'):
     plt.show()
 
 
-def plot_ecg_img(arr, low=None, hi=None, title='ECG as image plot', save=False):
+def plot_ecg_img(arr, low=None, hi=None, title=None, save=False):
     """
     :param arr: 1D array of ECG signal
     :param low: The minimum value for normalization across all signals
     :param hi: The maximum value for normalization across all signals
     :param title: Plot title
+    :param save: Save-to-file flag
 
     If `low` and `hi` unspecified, will normalize based on `arr`
     """
@@ -83,8 +89,10 @@ def plot_ecg_img(arr, low=None, hi=None, title='ECG as image plot', save=False):
 
     plt.figure(figsize=(12, 1), constrained_layout=True)
     plt.imshow(arr, interpolation='nearest', cmap='gray', vmin=0, vmax=255)
-    plt.title(title)
-
+    t = 'ECG as Image'
+    if title:
+        t = f'{t}, {title}'
+    plt.title(t)
     if save:
         plt.savefig(f'{title}.png', dpi=300)
     plt.show()
@@ -103,7 +111,7 @@ def plot_energy(arr, title=None):
         t = f'{t}, {title}'
     plt.title(t)
     plt.xlabel('Entry no.')
-    plt.ylabel('Energy level')
+    plt.ylabel('Energy level, normalized')
     plt.legend()
     plt.show()
 
@@ -123,6 +131,7 @@ def plot_max_min(arr, k=10, title=None):
     """
     :param arr: 2D array
     :param k: Number of signals with large range to highlight
+    :param title: Title of plot
 
     Illustrates the maximum and minimum globally and of each 1D array
     """
@@ -131,7 +140,9 @@ def plot_max_min(arr, k=10, title=None):
     mi = np.min(arr, axis=-1)
     ran = ma - mi
 
-    fig, axs = plt.subplots(2, figsize=(20, 9), constrained_layout=True)
+    fig, axs = plt.subplots(2, figsize=(20, 9))
+    fig.tight_layout(pad=5)
+
     cs = sns.color_palette()
     axs[0].plot(x, ma, marker='o', ms=0.3, lw=0.25, c=cs[0], label='Local max')
     axs[0].axhline(y=np.max(ma), lw=0.4, c=cs[0], label='Global max')
@@ -156,7 +167,11 @@ def plot_max_min(arr, k=10, title=None):
     axs[0].legend(by_label.values(), by_label.keys())
     axs[1].legend(by_label.values(), by_label.keys())
     axs[0].set_title('Max and Min')
+    axs[0].set_xlabel('Entry no.')
+    axs[0].set_ylabel('Energy level, normalized')
     axs[1].set_title('Range')
+    axs[1].set_xlabel('Entry no.')
+    axs[1].set_ylabel('Energy level, normalized')
     t = 'Max and Min plot'
     if title:
         t = f'{t}, {title}'
