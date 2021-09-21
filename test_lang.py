@@ -80,27 +80,27 @@ if __name__ == '__main__':
     #
     # ic(np.vectorize(lambda s: re.match(r'([0-9]+)_', s).groups()[0])(arr))
 
-    segments = 10
-    points_per_segment = 100
-
-    # your data preparation will vary
-    x = np.tile(np.arange(points_per_segment), segments)
-    z = np.floor(np.arange(points_per_segment * segments) / points_per_segment)
-    y = np.sin(x * (1 + z))
-
-    df = pd.DataFrame({'x': x, 'y': y, 'z': z})
-
-    pal = sns.color_palette()
-    g = sns.FacetGrid(df, row="z", hue="z", aspect=15, height=.5, palette=pal)
-    g.map(plt.plot, 'x', 'y')
-    g.map(plt.axhline, y=0, lw=2, clip_on=False)
-    # Set the subplots to overlap
-    g.fig.subplots_adjust(hspace=-.1)
-    g.set_titles("")
-    g.set(yticks=[])
-    g.despine(bottom=True, left=True)
-
-    plt.show()
+    # segments = 10
+    # points_per_segment = 100
+    #
+    # # your data preparation will vary
+    # x = np.tile(np.arange(points_per_segment), segments)
+    # z = np.floor(np.arange(points_per_segment * segments) / points_per_segment)
+    # y = np.sin(x * (1 + z))
+    #
+    # df = pd.DataFrame({'x': x, 'y': y, 'z': z})
+    #
+    # pal = sns.color_palette()
+    # g = sns.FacetGrid(df, row="z", hue="z", aspect=15, height=.5, palette=pal)
+    # g.map(plt.plot, 'x', 'y')
+    # g.map(plt.axhline, y=0, lw=2, clip_on=False)
+    # # Set the subplots to overlap
+    # g.fig.subplots_adjust(hspace=-.1)
+    # g.set_titles("")
+    # g.set(yticks=[])
+    # g.despine(bottom=True, left=True)
+    #
+    # plt.show()
 
 
     # # plot 1:
@@ -119,5 +119,19 @@ if __name__ == '__main__':
     # plt.subplots_adjust(hspace=-0.2)
     #
     # plt.show()
+
+    # a = np.array([
+    #     [1, 3],
+    #     [2, 5]
+    # ])
+    # es = np.sum(np.square(a), axis=-1)
+    # ic(es)
+    # a_norm = a / np.sqrt(es[:, None])
+    # ic(a_norm, np.sum(np.square(a_norm), axis=-1))
+
+    a = 'asdhjlasd'
+    for i in a:
+        ic(i)
+
 
 

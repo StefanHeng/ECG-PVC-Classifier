@@ -41,11 +41,12 @@ if __name__ == '__main__':
         d = dg(dnm)
         ic(dnm, d.path, d.meta)
     #
-    # d = dg(['daeRaw', 0])
-    # arr = d['vt'][:d['vt_width']]
-    # assert np.count_nonzero(~np.isnan(arr)) == arr.size
-    # ic(arr)
-    # plot_single(arr, 'daeRaw.0')
+    d = dg(['daeRaw', 0])
+    arr = d['vt'][:d['vt_width']]
+    assert np.count_nonzero(~np.isnan(arr)) == arr.size
+    ic(np.max(arr), np.min(arr))
+    ic(abs(np.max(arr)) + abs(np.min(arr)) / 100)
+    plot_single(arr, 'daeRaw.0')
 
     d = dg(['daeVt', 0])
     arr = d['ecg']
