@@ -5,6 +5,10 @@ Utility functions
 import numpy as np
 
 import matplotlib.pyplot as plt
+from icecream import ic
+
+
+N_LD = 12
 
 
 def sizeof_fmt(n):
@@ -31,11 +35,11 @@ def plot_single(arr, label):
     plt.show()
 
 
-def plot_ecg(arr, title):
+def plot_ecg(arr, title='ECG 12-lead plot'):
     """
     Assumes arr is concatenated 1D array of 12-lead signals
     """
-    n = 12
+    n = N_LD
     height = (abs(np.max(arr)) + abs(np.min(arr))) / 4  # Empirical
 
     arr = arr.reshape(n, -1)
@@ -58,7 +62,33 @@ def plot_ecg(arr, title):
     plt.show()
 
 
-def normalize_signal(arr, level=2**12):
+def plot_ecg_img(arr, low=None, hi=None, title='ECG as image plot', save=False):
+    """
+    :param arr: 1D array of ECG signal
+    :param low: The minimum value for normalization across all signals
+    :param hi: The maximum value for normalization across all signals
+    :param title: Plot title
+
+    If `low` and `hi` unspecified, will normalize based on `arr`
+    """
+    if low is None and hi is None:
+        low = np.min(arr)
+        hi = np.max(arr)
+
+    arr -= low
+    arr *= 255.0 / (hi - low)
+    arr = arr.reshape(N_LD, -1)
+
+    plt.figure(figsize=(12, 1), constrained_layout=True)
+    plt.imshow(arr, interpolation='nearest', cmap='gray', vmin=0, vmax=255)
+    plt.title(title)
+
+    if save:
+        plt.savefig(f'{title}.png', dpi=300)
+    plt.show()
+
+
+def normalize_signal(arr, level=2**10):
     energies = np.sum(np.square(arr), axis=-1)[:, None]
     return (arr * level) / np.sqrt(energies)
 
