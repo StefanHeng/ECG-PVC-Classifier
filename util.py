@@ -59,7 +59,7 @@ def plot_ecg(arr, title=None):
     t = 'ECG 12-lead plot'
     if title:
         t = f'{t}, {title}'
-    plt.title(title)
+    plt.title(t)
     plt.xlabel('Time, normalized')
     plt.ylabel('Volt, normalized')
     plt.yticks(ylb_ori, ylb_new)
@@ -116,6 +116,11 @@ def plot_energy(arr, title=None):
     plt.show()
 
 
+def normalize_signal(arr, level=2**10):
+    energies = np.sum(np.square(arr), axis=-1)[:, None]
+    return (arr * level) / np.sqrt(energies)
+
+
 def k_idxs(arr, k=10, d='max'):
     """
     :param arr: 1D Array
@@ -127,18 +132,28 @@ def k_idxs(arr, k=10, d='max'):
     return sorted(idxs, key=lambda x: arr[x])
 
 
-def plot_max_min(arr, k=10, title=None):
+def plot_max_min(arr, k=10, title=None, cross_ch=False):
     """
     :param arr: 2D array
     :param k: Number of signals with large range to highlight
     :param title: Title of plot
+    :param cross_ch: If true, compute range across all leads; otherwise compute each lead independently
 
     Illustrates the maximum and minimum globally and of each 1D array
     """
-    x = np.arange(arr.shape[0])
-    ma = np.max(arr, axis=-1)
-    mi = np.min(arr, axis=-1)
-    ran = ma - mi
+    n = arr.shape[0]
+    x = np.arange(n)
+    if cross_ch:
+        ma = np.max(arr, axis=-1)
+        mi = np.min(arr, axis=-1)
+        ran = ma - mi
+    else:
+        arr_r = arr.reshape(n, N_LD, -1)
+        ma = np.max(arr_r, axis=-1)
+        mi = np.min(arr_r, axis=-1)
+        ran = np.max(ma - mi, axis=-1)
+        ma = np.max(ma, axis=-1)
+        mi = np.min(mi, axis=-1)
 
     fig, axs = plt.subplots(2, figsize=(20, 9))
     fig.tight_layout(pad=5)
@@ -179,9 +194,23 @@ def plot_max_min(arr, k=10, title=None):
     plt.show()
 
 
-def normalize_signal(arr, level=2**10):
-    energies = np.sum(np.square(arr), axis=-1)[:, None]
-    return (arr * level) / np.sqrt(energies)
+def plot_mean(arr, title=None):
+    n = arr.shape[0]
+    x = np.arange(n)
+    avg = np.mean(arr, axis=-1)
+
+    plt.figure(figsize=(20, 9), constrained_layout=True)
+    plt.plot(x, avg, marker='o', ms=0.3, lw=0.25, label='Average volt')
+    plt.fill_between(x, avg, np.full(n, 0), alpha=0.3)
+
+    t = 'Mean Volt by entry'
+    if title:
+        t = f'{t}, {title}'
+    plt.title(t)
+    plt.xlabel('Entry no.')
+    plt.ylabel('Volt, normalized')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -199,7 +228,5 @@ if __name__ == '__main__':
     ecgs = dg('daePm.ecg')
     ecgs_norm = normalize_signal(ecgs)
     # plot_energy(ecgs)
-    plot_max_min(ecgs, k=5)
-
-
-
+    # plot_max_min(ecgs_norm, k=5, cross_ch=False)
+    plot_mean(ecgs_norm)

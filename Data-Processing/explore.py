@@ -40,7 +40,7 @@ if __name__ == '__main__':
     for dnm in dg.DSETS:
         d = dg(dnm)
         ic(dnm, d.path, d.meta)
-    #
+
     d = dg(['daeRaw', 0])
     arr = d['vt'][:d['vt_width']]
     assert np.count_nonzero(~np.isnan(arr)) == arr.size

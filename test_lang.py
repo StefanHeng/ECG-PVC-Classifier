@@ -137,8 +137,11 @@ if __name__ == '__main__':
     #
     # ic(np.random.randint(20, size=10))
 
-    import seaborn as sns
-    ic(sns.color_palette())
+    # import seaborn as sns
+    # ic(sns.color_palette())
+    # plt.stem([0, 2, 1])
+    # plt.show()
 
+    ic(4 % 1)
 
 
