@@ -1,4 +1,3 @@
-import itertools
 from typing import Union
 from copy import deepcopy
 from math import ceil
@@ -8,6 +7,9 @@ import seaborn as sns
 from icecream import ic
 
 import pywt
+
+sns.set_style("dark")
+gray = list(map(lambda x: x / (2 ** 8), (128,) * 3))
 
 
 def plot_palette(pnm=None, title=None, n_colors=None):
@@ -29,13 +31,12 @@ def plot_palette(pnm=None, title=None, n_colors=None):
         sns.palplot(p)
         plt.title(f'{t} - {num}')
 
+    _plot(a)
     if n_colors:
         for n in n_colors:
             a_ = deepcopy(a)
             a_['n_colors'] = n
             _plot(a_, n)
-    else:
-        _plot(a)
 
 
 def plot_all_palettes(n_colors: Union[list, None] = None):
@@ -64,10 +65,19 @@ def plot_all_wavelets(f, level=5):
     :param level:
     """
     wnames = pywt.wavelist(f)
+    # if f in ['shan', 'fbsp', 'cmor']:
+    #     wnames = list(map(lambda x: f'{x}1.5-1.0', wnames))  # Given warning
+
     cont = wnames[0] in continuous
     Obj = pywt.ContinuousWavelet if cont else pywt.Wavelet
-    n_func = len(Obj(wnames[0]).wavefun()) - 1  # Either 2 or 4
+    w_dummy = Obj(wnames[0])
+    n_func = len(w_dummy.wavefun()) - 1  # Takes on [1, 2, 4]
+    cont_cpx = cont and w_dummy.complex_cwt
+    if cont_cpx:
+        n_func *= 2
+    ic(f)
     bio = n_func == 4
+
     l = len(wnames)
     wnames = iter(wnames)
     cs = iter(sns.color_palette(palette='husl', n_colors=l))
@@ -78,7 +88,10 @@ def plot_all_wavelets(f, level=5):
 
     for i in range(l):
         r, c = i // (n_col // n_func), i % (n_col // n_func)
-        idx = 1 + (r * n_func + c) * (n_col // n_func)
+        if n_func == 1:
+            idx = 1 + r * n_col + c
+        else:
+            idx = 1 + (r * n_func + c) * (n_col // n_func)
         w = Obj(next(wnames))
         clr = next(cs)
 
@@ -86,93 +99,28 @@ def plot_all_wavelets(f, level=5):
             ax = fig.add_subplot(n_row, n_col, idx_)
             ax.set_title(w.name)
             ax.plot(x, y, marker='o', ms=0.3, c=clr, lw=0.25, label=label)
-            ax.axhline(y=0, lw=0.4)
+            ax.axhline(y=0, lw=0.4, c=gray)
             ax.legend()
 
-        if bio:
+        if cont and not cont_cpx:
+            psi, x = w.wavefun(level=level)
+            _plot(idx, psi, 'Scaling func')
+
+        elif not bio or cont_cpx:
+            if cont_cpx:
+                psi, x = w.wavefun(level=level)
+                _plot(idx, psi.real, 'Scaling func, real')
+                _plot(idx+1, psi.imag, 'Scaling func, imag')
+            else:
+                phi, psi, x = w.wavefun(level=level)
+                _plot(idx, phi, 'Scaling func')
+                _plot(idx+1, psi, 'Wavelet func')
+        else:
             phi_d, psi_d, phi_r, psi_r, x = w.wavefun(level=level)
             _plot(idx, phi_d, 'Scaling func, decomp')
             _plot(idx+1, psi_d, 'Wavelet func, decomp')
             _plot(idx+2, phi_d, 'Scaling func, recomp')
             _plot(idx+3, psi_d, 'Scaling func, recomp')
-        else:
-            phi, psi, x = w.wavefun(level=level)
-            _plot(idx, phi, 'Scaling func')
-            _plot(idx+1, phi, 'Wavelet func')
-
-    plt.show()
-    # return
-    #
-    # plot_data = [('db', (4, 3)),
-    #              ('sym', (4, 3)),
-    #              ('coif', (3, 2))]
-    #
-    # for family, (rows, cols) in plot_data:
-    #     fig = plt.figure(figsize=(16, 9), constrained_layout=True)
-    #     # fig.subplots_adjust(hspace=0.2, wspace=0.2, bottom=.02, left=.06, right=.97, top=.94)
-    #     colors = itertools.cycle('bgrcmyk')
-    #
-    #     wnames = pywt.wavelist(family)
-    #     i = iter(wnames)
-    #     for col in range(cols):
-    #         for row in range(rows):
-    #             try:
-    #                 wavelet = pywt.Wavelet(next(i))
-    #             except StopIteration:
-    #                 break
-    #             phi, psi, x = wavelet.wavefun(level=5)
-    #
-    #             color = next(colors)
-    #             ax = fig.add_subplot(rows, 2 * cols, 1 + 2 * (col + row * cols))
-    #             ax.set_title(wavelet.name + " phi")
-    #             ax.plot(x, phi, color)
-    #             ax.set_xlim(min(x), max(x))
-    #
-    #             ax = fig.add_subplot(rows, 2 * cols, 1 + 2 * (col + row * cols) + 1)
-    #             ax.set_title(wavelet.name + " psi")
-    #             ax.plot(x, psi, color)
-    #             ax.set_xlim(min(x), max(x))
-    #     break
-
-    # for family, (rows, cols) in [('bior', (4, 3)), ('rbio', (4, 3))]:
-    #     fig = plt.figure(figsize=(16, 9))
-    #     fig.subplots_adjust(hspace=0.5, wspace=0.2, bottom=.02, left=.06,
-    #                         right=.97, top=.94)
-    #
-    #     colors = itertools.cycle('bgrcmyk')
-    #     wnames = pywt.wavelist(family)
-    #     i = iter(wnames)
-    #     for col in range(cols):
-    #         for row in range(rows):
-    #             try:
-    #                 wavelet = pywt.Wavelet(next(i))
-    #             except StopIteration:
-    #                 break
-    #             phi, psi, phi_r, psi_r, x = wavelet.wavefun(level=5)
-    #             row *= 2
-    #
-    #             color = next(colors)
-    #             ax = fig.add_subplot(2*rows, 2*cols, 1 + 2*(col + row*cols))
-    #             ax.set_title(wavelet.name + " phi")
-    #             ax.plot(x, phi, color)
-    #             ax.set_xlim(min(x), max(x))
-    #
-    #             ax = fig.add_subplot(2*rows, 2*cols, 2*(1 + col + row*cols))
-    #             ax.set_title(wavelet.name + " psi")
-    #             ax.plot(x, psi, color)
-    #             ax.set_xlim(min(x), max(x))
-    #
-    #             row += 1
-    #             ax = fig.add_subplot(2*rows, 2*cols, 1 + 2*(col + row*cols))
-    #             ax.set_title(wavelet.name + " phi_r")
-    #             ax.plot(x, phi_r, color)
-    #             ax.set_xlim(min(x), max(x))
-    #
-    #             ax = fig.add_subplot(2*rows, 2*cols, 1 + 2*(col + row*cols) + 1)
-    #             ax.set_title(wavelet.name + " psi_r")
-    #             ax.plot(x, psi_r, color)
-    #             ax.set_xlim(min(x), max(x))
-
     plt.show()
 
 
@@ -181,8 +129,4 @@ if __name__ == '__main__':
     # plt.show()
 
     # plot_all_palettes()
-    # plot_all_wavelets('sym')
-    # obj = pywt.ContinuousWavelet if True else pywt.Wavelet
-    # w = obj('gaus1')
-    # ic(w)
-    plot_all_wavelets('gaus')
+    plot_all_wavelets('shan')

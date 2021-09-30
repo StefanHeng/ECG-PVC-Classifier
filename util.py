@@ -3,12 +3,16 @@ Utility functions
 """
 
 import numpy as np
+import pywt
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 from icecream import ic
 
+
+sns.set_style("dark")
+gray = list(map(lambda x: x / (2 ** 8), (128,) * 3))
 
 N_LD = 12
 
@@ -213,6 +217,76 @@ def plot_mean(arr, title=None):
     plt.show()
 
 
+def plot_wavelet_coeffs(arr, w, level=6, title=None):
+    """Show multi-level dwt coefficients for given data and wavelet """
+    # w = pywt.Wavelet(w)
+    # a = data
+    # ca = []
+    # cd = []
+    #
+    # for i in range(5):
+    #     (a, d) = pywt.dwt(a, w, mode='smooth')
+    #     ca.append(a)
+    #     cd.append(d)
+    #
+    # fig = plt.figure(figsize=(16, 9))
+    # ax_main = fig.add_subplot(len(ca) + 1, 1, 1)
+    # ax_main.set_title(title)
+    # ax_main.plot(data)
+    # ax_main.set_xlim(0, len(data) - 1)
+    #
+    # for i, x in enumerate(ca):
+    #     ax = fig.add_subplot(len(ca) + 1, 2, 3 + i * 2)
+    #     ax.plot(x, 'r')
+    #     ax.set_ylabel("A%d" % (i + 1))
+    #     ax.set_xlim(0, len(x) - 1)
+    #
+    # for i, x in enumerate(cd):
+    #     ax = fig.add_subplot(len(cd) + 1, 2, 4 + i * 2)
+    #     ax.plot(x, 'g')
+    #     ax.set_ylabel("D%d" % (i + 1))
+    #     # Scale axes
+    #     ax.set_xlim(0, len(x) - 1)
+    #     ax.set_ylim(min(0, 1.4 * min(x)), max(0, 1.4 * max(x)))
+    coeffs = pywt.wavedec(arr, w, mode='smooth', level=level)
+    appr, dtls = coeffs[0], coeffs[1:]
+    n_plot = level+2  # Original and 7 decompositions
+    cs = iter(sns.color_palette(palette='husl', n_colors=n_plot))
+
+    n_col = 2
+    fig = plt.figure(figsize=(2 * 4 * 2, len(dtls) * 2), constrained_layout=True)
+    # subfigs = fig.subfigures(1, 2, wspace=0.07)
+    subfigs = fig.subfigures(1, 2)
+
+    def _plot(idx_fig, idx_plt, y, label, title_=None):
+        ax = subfigs[idx_fig].add_subplot(*idx_plt)
+        ax.plot(np.arange(y.size), y, marker='o', ms=0.3, c=next(cs), lw=0.25, label=label)
+        ax.axhline(y=0, lw=0.4, c=gray)
+        if title_:
+            ax.set_title(title_)
+        ax.legend()
+
+    def _c(s):
+        return f'{s} coefficients'
+
+    n_row, n_col = level, 1
+
+    def _idx_plt(i_plt):
+        return [n_row, n_col, i_plt]
+    o = 'Original'
+    a = 'Approximation'
+    d = 'Detail'
+    _plot(0, _idx_plt(1), arr, o, title_=o)
+    _plot(0, _idx_plt(n_row), appr, _c(a), title_=a)
+
+    for idx, dtl in enumerate(reversed(dtls)):
+        _plot(1, _idx_plt(idx+1), dtl, f'{_c(d)} - {idx+1}', title_=d)
+
+    if title:
+        plt.suptitle(title)
+    plt.show()
+
+
 if __name__ == '__main__':
     import numpy as np
 
@@ -229,4 +303,5 @@ if __name__ == '__main__':
     ecgs_norm = normalize_signal(ecgs)
     # plot_energy(ecgs)
     # plot_max_min(ecgs_norm, k=5, cross_ch=False)
-    plot_mean(ecgs_norm)
+    # plot_mean(ecgs_norm)
+    plot_wavelet_coeffs(ecgs_norm[502][:350], 'db2', level=6, title='Example')
