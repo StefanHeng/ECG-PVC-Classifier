@@ -1,11 +1,8 @@
 import numpy as np
-
 from scipy.io import loadmat
-
 import re
 from typing import Union
-from copy import deepcopy
-
+# from copy import deepcopy
 from icecream import ic
 
 
@@ -292,9 +289,6 @@ class DataGetter:
 
         def __str__(self):
             return self.d.__str__()
-
-        def keys(self):
-            return deepcopy(self.keys)
 
         def overview(self, n=30, show_ori=True):
             if show_ori:

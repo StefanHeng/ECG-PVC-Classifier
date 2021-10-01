@@ -142,6 +142,17 @@ if __name__ == '__main__':
     # plt.stem([0, 2, 1])
     # plt.show()
 
-    ic(4 % 1)
+    # ic(4 % 1)
+
+    def str_contains(arr, s):
+        return np.flatnonzero(np.core.defchararray.find(arr, s) != -1)
+
+    a = np.array(['as', 'vd', 'assa'])
+    ic(a)
+    ic(np.where('as' in a))
+    ic(np.where('a' in a))
+    ic(np.where(a == 2))
+    ic(str_contains(a, 'a'))
+
 
 
