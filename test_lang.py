@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 import re
+import h5py
 
 import os
 import scipy.io
@@ -14,7 +15,6 @@ from ecg_data import DataGetter
 
 
 if __name__ == '__main__':
-    os.chdir('../PVC_DATA')
 
     # mat = scipy.io.loadmat('MM_classifier/alldata.mat')
     # ic(mat, mat.keys())
@@ -144,15 +144,78 @@ if __name__ == '__main__':
 
     # ic(4 % 1)
 
-    def str_contains(arr, s):
-        return np.flatnonzero(np.core.defchararray.find(arr, s) != -1)
+    # def str_contains(arr, s):
+    #     return np.flatnonzero(np.core.defchararray.find(arr, s) != -1)
+    #
+    # a = np.array(['as', 'vd', 'assa'])
+    # ic(a)
+    # ic(np.where('as' in a))
+    # ic(np.where('a' in a))
+    # ic(np.where(a == 2))
+    # ic(str_contains(a, 'a'))
 
-    a = np.array(['as', 'vd', 'assa'])
-    ic(a)
-    ic(np.where('as' in a))
-    ic(np.where('a' in a))
-    ic(np.where(a == 2))
-    ic(str_contains(a, 'a'))
+    # a = np.array([
+    #     ['as', 'b'],
+    #     ['cc', 's']
+    # ], dtype='S')
+    # ic(a)
+
+    # fl = h5py.File('file', 'w')
+    #
+    # d = pd.DataFrame({'float': [1.0],
+    #                   'int': [1],
+    #                   'datetime': [pd.Timestamp('20180310')],
+    #                   'string': ['foo']})
+    # ic(d.dtypes)
+    # a = d['string']
+    # ic(a.dtype)
+    # a = a.astype('string')
+    # a = a.astype('S')
+    # ic(a)
+    # d['string'] = a
+    # ic(d)
+    # # df.to_hdf('data.h5', key='df', mode='w')
+    # # fl.attrs['dae'] = d
+    # # fl.create_dataset('a', data=d)
+    #
+    # # store = pd.HDFStore('store.h5')
+    # #
+    # # store['df'] = d  # save it
+    # # ic(store['df'])
+    #
+    # fl['a'] = d.columns.values.astype('S')
+    # ic(d.dtypes)
+    #
+    # # fl['b'] = d
+    # df2 = d.astype('S')
+    # ic(df2.dtypes)
+    #
+    # a = np.array([
+    #     ['as', 'b'],
+    #     ['cc', 's']
+    # ], dtype='S')
+    #
+    # fl['b'] = a
+    #
+    # ic(fl)
+    # ic(fl['a'])
+    # ic(fl['b'])
+
+    # a = np.array(['1', '2'])
+    # ic(a.astype('int'))
+
+    df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
+
+    def _map(x):
+        ic(x[0])
+        ic(x['B'])
+
+    df.apply(_map, axis=1, result_type='expand')
+
+    if type(1.0) is float:
+        ic('asd')
+
+
 
 
 

@@ -274,27 +274,12 @@ def plot_wavelet_dwt(arr, w, level=6, title=None):
 
 
 def plot_wavelet_cwt(arr, w, max_scale=128, title=None):
-    plt.figure(figsize=(16, 9), constrained_layout=True)
+    plt.figure(figsize=(8 * (arr.shape[0] / max_scale), 8), constrained_layout=True)
     scales = np.arange(1, max_scale)
     cfs, fqs = pywt.cwt(arr, scales, w)
     cfs = np.abs(cfs)
-    # plt.imshow(cfs)
-    # sns.set_style("darkgrid", {"axes.facecolor": ".9"})
     with sns.axes_style('ticks'):
-        sns.heatmap(cfs, xticklabels=10, yticklabels=5, square=True, cbar=False, cmap='mako')
-    # _set_sns_style()
-
-    # ic(hm.spines['left'].__dict__)
-    # hm.spines['left'].set_edgecolor((0, 0, 0, 1))
-    # # hm.spines['left'].set_original_edgecolor('black')
-    # hm.spines['left'].set_visible(True)
-    # hm.spines['left'].set_alpha(1)
-    # ic(hm.spines['left'].__dict__)
-    # for label in hm.get_xticklabels():
-    #     if np.int(label.get_text()) % 10 == 0:
-    #         label.set_visible(True)
-    #     else:
-    #         label.set_visible(False)
+        sns.heatmap(cfs, xticklabels=10, yticklabels=5, square=True, cmap='mako')
     t = 'Wavelet Power Spectrum'
     if title:
         t = f'{t}, {title}'
@@ -304,38 +289,6 @@ def plot_wavelet_cwt(arr, w, max_scale=128, title=None):
     plt.ylabel('Scale')
     plt.xlabel('Time')
     plt.show()
-
-    # time, sst = pywt.data.nino()
-    # dt = time[1] - time[0]
-    #
-    # # Taken from http://nicolasfauchereau.github.io/climatecode/posts/wavelet-analysis-in-python/
-    # wavelet = 'cmor1.5-1.0'
-    # scales = np.arange(1, 128)
-    #
-    # [cfs, frequencies] = pywt.cwt(sst, scales, wavelet, dt)
-    # ic(cfs, frequencies)
-    # # ic(abs(cfs), np.abs(cfs))
-    # power = (abs(cfs)) ** 2
-    # ic(power, np.square(np.abs(cfs)))
-    #
-    # period = 1. / frequencies
-    # ic(period, np.log2(period))
-    # ic(time)
-    # levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8]
-    # f, ax = plt.subplots(figsize=(15, 10))
-    # ax.contourf(time, np.log2(period), np.log2(power), np.log2(levels), extend='both')
-    #
-    # ax.set_title('%s Wavelet Power Spectrum (%s)' % ('Nino1+2', w))
-    # ax.set_ylabel('Period (years)')
-    # Yticks = 2 ** np.arange(np.ceil(np.log2(period.min())),
-    #                         np.ceil(np.log2(period.max())))
-    # ax.set_yticks(np.log2(Yticks))
-    # ax.set_yticklabels(Yticks)
-    # ax.invert_yaxis()
-    # ylim = ax.get_ylim()
-    # ax.set_ylim(ylim[0], -1)
-    #
-    # plt.show()
 
 
 if __name__ == '__main__':
