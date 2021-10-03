@@ -11,7 +11,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from icecream import ic
 
-from ecg_data import DataGetter
+from ecg_data import EcgData
 
 
 if __name__ == '__main__':
@@ -204,17 +204,24 @@ if __name__ == '__main__':
     # a = np.array(['1', '2'])
     # ic(a.astype('int'))
 
-    df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
+    # df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
+    #
+    # def _map(x):
+    #     ic(x[0])
+    #     ic(x['B'])
+    #
+    # df.apply(_map, axis=1, result_type='expand')
+    #
+    # if type(1.0) is float:
+    #     ic('asd')
 
-    def _map(x):
-        ic(x[0])
-        ic(x['B'])
-
-    df.apply(_map, axis=1, result_type='expand')
-
-    if type(1.0) is float:
-        ic('asd')
-
+    a = np.array([
+        ['as', 'b'],
+        ['cc', 's']
+    # ], dtype=np.str_)
+    ], dtype='str')
+    # ])
+    ic(a, a.dtype)
 
 
 

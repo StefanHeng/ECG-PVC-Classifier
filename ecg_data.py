@@ -6,7 +6,7 @@ from typing import Union
 from icecream import ic
 
 
-class DataGetter:
+class EcgData:
     """
     Interface to fetch ECG data from .MAT files in the datasets
     """
@@ -236,7 +236,7 @@ class DataGetter:
 
                 self.keys += list(map(w, self.keys))
 
-                case_names = DataGetter.Dataset(f'{d_nm}Cnm')
+                case_names = EcgData.Dataset(f'{d_nm}Cnm')
                 keys = case_names.keys
                 for k in keys:
                     self.d[c(k)] = case_names.d[k]
@@ -341,7 +341,7 @@ if __name__ == '__main__':
     import os
     os.chdir('../PVC_DATA')
 
-    dg = DataGetter()
+    dg = EcgData()
 
     idx = 20
     dataset = dg('daeVt')

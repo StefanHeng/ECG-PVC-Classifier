@@ -298,11 +298,11 @@ if __name__ == '__main__':
 
     from icecream import ic
 
-    from ecg_data import DataGetter
+    from ecg_data import EcgData
 
     os.chdir('../PVC_DATA')
 
-    dg = DataGetter()
+    dg = EcgData()
     ecgs = dg('daePm.ecg')
     ecgs_norm = normalize_signal(ecgs)
     # plot_energy(ecgs)

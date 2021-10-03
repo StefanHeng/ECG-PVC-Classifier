@@ -5,14 +5,14 @@ import os
 from icecream import ic
 
 from util import *
-from ecg_data import DataGetter
+from ecg_data import EcgData
 
 
 os.chdir('../../PVC_DATA')
 
 
 if __name__ == '__main__':
-    dg = DataGetter()
+    dg = EcgData()
     ecgs = dg('daePm.ecg')
     ecgs_norm = normalize_signal(ecgs)
 

@@ -24,12 +24,14 @@ class EcgLabelExport:
     def __init__(self):
         def _daeVt():
             df = pd.read_csv(self.D['daeVt']['path'])
-            ic(df)
-            ic(df.dtypes)
-            ic(df.columns)
 
-            columns = np.array(['pat_num', 'case_name', 'wall', 'origin', 'site'], dtype='S')
-            dtypes = np.array(['int', 'S', 'S', 'S', 'S'], dtype='S')
+            # Actual numpy strings with `U` not compatible with `hdf5`
+            dtype_exp = 'S'
+            columns = np.array(['pat_num', 'case_name', 'wall', 'origin', 'site'], dtype=dtype_exp)
+            dtypes = np.array([
+                ['int', 'string', 'string', 'string', 'string'],  # 1st run
+                ['category', 'category', 'category', 'category', 'category']  # 2nd run
+            ], dtype=dtype_exp)
 
             d_wall = {
                 'free wall': 'FW',
@@ -43,53 +45,33 @@ class EcgLabelExport:
 
             def _map(x):
                 pat_num, case_name, w, _, o, __, site = x
-                # pat_num = x['Name']
-                # case_name = x['VT']
-                # w_ = x['septum free wall']
                 wall = d_wall[w] if w in d_wall else 'NA'
-                # o_ = x['Intr']
                 origin = d_origin[o] if o in d_origin else 'NA'
                 if type(site) is float and isnan(site):
                     site = 'NA'
-                # site = x['Unnamed: 6']
-                # ic(pat_num, case_name, wall, origin, site)
                 return pat_num, case_name, wall, origin, site
 
             df_ = df.apply(_map, axis=1, result_type='expand')
             return dict(
                 columns=columns,
                 dtypes=dtypes,
-                data=df_.to_numpy().astype('S')
+                data=df_.to_numpy().astype(dtype_exp)
             )
 
-        ks = ['daeVt']
         d_func = dict(
             daeVt=_daeVt
         )
-        # for idx, k in enumerate(ks):
-        #     d_func[k]().to_hdf(self.F, key=k, mode='w' if idx == 0 else 'a')
 
         open(self.F, 'a').close()  # Create file in OS
         f = h5py.File(self.F, 'w')
         for dnm in self.D.keys():
             group = f.create_group(dnm)
-            for k, v in d_func[dnm]().items():
+            d = d_func[dnm]()
+            for k, v in d.items():
                 group[k] = v
+            print(f'Dataset {dnm} labels generated with keys {list(d.keys())}')
 
-
-        # fl.attrs['feat_stor_idxs'] = json.dumps(self.ENC_FEAT_STOR)
-        # fl.attrs['brg_nms'] = json.dumps(self.FLDR_NMS)
-        # fl.attrs['nums_msr'] = json.dumps(self.NUMS_MESR)
-        # fl.attrs['feat_disp_nms'] = json.dumps({idx: nm for idx, nm in enumerate(extr.D_PROP_FUNC)})
-        # print(f'Metadata attributes created: {list(fl.attrs.keys())}')
-        # for idx_brg, test_nm in enumerate(self.FLDR_NMS):
-        #     group = fl.create_group(test_nm)
-        #     for acc in ['hori', 'vert']:
-        #         arr_extr = np.stack([
-        #             self.get_feature_series(idx_brg, func, acc) for k, func in extr.D_PROP_FUNC.items()
-        #         ])
-        #         group.create_dataset(acc, data=arr_extr)
-        # print(f'Features extracted: {[nm for nm in fl]}')
+        print(f'Dataset labels generated for {list(self.D.keys())}')
 
 
 def pp(rec):
@@ -106,7 +88,7 @@ if __name__ == '__main__':
     import os
     os.chdir('../PVC_DATA')
 
-    # el = EcgLabelExport()
+    EcgLabelExport()
     record = h5py.File('ecg_label.hdf5', 'r')
     pp(record)
 
