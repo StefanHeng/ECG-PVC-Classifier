@@ -32,7 +32,7 @@ class EcgLabelExport:
             columns = np.array(['pat_num', 'vt_name', 'wall', 'origin', 'site'])
             dtypes = np.array([
                 ['int', 'string', 'string', 'string', 'string'],  # 1st run
-                ['category', 'category', 'category', 'category', 'category']  # 2nd run
+                ['category', 'string', 'category', 'category', 'category']  # 2nd run
             ])
 
             d_wall = {

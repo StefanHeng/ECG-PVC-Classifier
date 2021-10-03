@@ -3,6 +3,7 @@ import pandas as pd
 
 import re
 import h5py
+from enum import IntEnum
 
 import os
 import scipy.io
@@ -232,11 +233,21 @@ if __name__ == '__main__':
     # ic(_(foo))
     # ic(locals())
 
-    a = np.array([
-        12, 23, 2, 1
-    ])
+    # a = np.array([
+    #     12, 23, 2, 1
+    # ])
+    #
+    # def np_idx(arr, v):
+    #     return np.where(arr == v)[0][0]
+    #
+    # ic(np_idx(a, 2))
 
-    def np_idx(arr, v):
-        return np.where(arr == v)[0][0]
+    WALL = IntEnum('Wall', 'NA SP FW')
+    ic(WALL.NA < WALL.SP)
+    l = [WALL.FW, WALL.NA, WALL.NA, WALL.SP]
+    ic(sorted(l))
+    ic(WALL(1))
+    ic(WALL['NA'])
 
-    ic(np_idx(a, 2))
+    ic(pd.Series([l]))
+
