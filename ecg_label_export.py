@@ -9,6 +9,8 @@ from math import isnan
 from icecream import ic
 import h5py
 
+from util import *
+
 
 class EcgLabelExport:
     """
@@ -27,11 +29,11 @@ class EcgLabelExport:
 
             # Actual numpy strings with `U` not compatible with `hdf5`
             dtype_exp = 'S'
-            columns = np.array(['pat_num', 'case_name', 'wall', 'origin', 'site'], dtype=dtype_exp)
+            columns = np.array(['pat_num', 'vt_name', 'wall', 'origin', 'site'])
             dtypes = np.array([
                 ['int', 'string', 'string', 'string', 'string'],  # 1st run
                 ['category', 'category', 'category', 'category', 'category']  # 2nd run
-            ], dtype=dtype_exp)
+            ])
 
             d_wall = {
                 'free wall': 'FW',
@@ -52,9 +54,13 @@ class EcgLabelExport:
                 return pat_num, case_name, wall, origin, site
 
             df_ = df.apply(_map, axis=1, result_type='expand')
+            # Per ordering in `vtdata.mat`, CSV is not sorted
+            df_.rename(columns=dict(zip(range(len(columns)), columns)), inplace=True)
+            df_.sort_values(by=['pat_num', 'vt_name'], inplace=True)
+
             return dict(
-                columns=columns,
-                dtypes=dtypes,
+                columns=columns.astype(dtype_exp),
+                dtypes=dtypes.astype(dtype_exp),
                 data=df_.to_numpy().astype(dtype_exp)
             )
 

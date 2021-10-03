@@ -4,10 +4,8 @@ Utility functions
 
 import numpy as np
 import pywt
-
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from icecream import ic
 
 
@@ -20,6 +18,10 @@ _set_sns_style()
 gray = list(map(lambda x: x / (2 ** 8), (128,) * 3))
 
 N_LD = 12
+
+
+def np_idx(arr, v):
+    return np.where(arr == v)[0][0]
 
 
 def sizeof_fmt(n):
