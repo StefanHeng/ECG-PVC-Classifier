@@ -10,9 +10,12 @@ import scipy.io
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib import rc
 from icecream import ic
 
 from ecg_data import EcgData
+
+rc('text', usetex=True)
 
 
 if __name__ == '__main__':
@@ -242,12 +245,21 @@ if __name__ == '__main__':
     #
     # ic(np_idx(a, 2))
 
-    WALL = IntEnum('Wall', 'NA SP FW')
-    ic(WALL.NA < WALL.SP)
-    l = [WALL.FW, WALL.NA, WALL.NA, WALL.SP]
-    ic(sorted(l))
-    ic(WALL(1))
-    ic(WALL['NA'])
+    # WALL = IntEnum('Wall', 'NA SP FW')
+    # ic(WALL.NA < WALL.SP)
+    # l = [WALL.FW, WALL.NA, WALL.NA, WALL.SP]
+    # ic(sorted(l))
+    # ic(WALL(1))
+    # ic(WALL['NA'])
+    #
+    # ic(pd.Series([l]))
 
-    ic(pd.Series([l]))
+    plt.plot([1, 2, 3], [23, 32, 5])
+    s1 = r'\textbf{\texttt{EP}}'
+    s2 = r'\textbf{\texttt{IM}}'
+    title = f'a: {s1}; b: {s2}'
+    ic(title)
+    print(title)
+    plt.title(title)
+    plt.show()
 

@@ -29,7 +29,7 @@ class EcgLabelExport:
 
             # Actual numpy strings with `U` not compatible with `hdf5`
             dtype_exp = 'S'
-            columns = np.array(['pat_num', 'vt_name', 'wall', 'origin', 'site'])
+            columns = np.array(['pat_num', 'vt_name', 'wall', 'side', 'ventricle'])
             dtypes = np.array([
                 ['int', 'string', 'string', 'string', 'string'],  # 1st run
                 ['category', 'string', 'category', 'category', 'category']  # 2nd run

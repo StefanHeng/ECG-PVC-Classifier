@@ -3,15 +3,18 @@ Utility functions
 """
 
 import numpy as np
+import pandas as pd
 import pywt
 import matplotlib.pyplot as plt
+from matplotlib import rc
 import seaborn as sns
 from icecream import ic
+
+rc('text', usetex=True)
 
 
 def _set_sns_style():
     sns.set_style('dark')
-    # sns.set_style('ticks')
 
 
 _set_sns_style()
@@ -47,6 +50,16 @@ def str_contains(arr, s):
     return np.flatnonzero(np.core.defchararray.find(arr, s) != -1)
 
 
+def srs2str(arr: pd.Series, keys, tex=True, max_key_len=4):
+    s = ''
+    for k in keys:
+        v = str(arr[k])
+        if tex:
+            v = r'\textbf{\texttt{' + v + '}}'
+        s += f'{k[:max_key_len]}: {v}; '
+    return s[:-2]
+
+
 def plot_single(arr, label):
     """ Plot single variate single dimension signal """
     plt.figure(figsize=(18, 6))
@@ -66,7 +79,7 @@ def plot_ecg(arr, title=None):
     height = (abs(np.max(arr)) + abs(np.min(arr))) / 4  # Empirical
 
     arr = arr.reshape(n, -1)
-    plt.figure(figsize=(5, 13), constrained_layout=True)
+    plt.figure(figsize=(7, 13), constrained_layout=True)
 
     ylb_ori = ((np.arange(n) - n + 1) * height)[::-1]
     ylb_new = ['I', 'II', 'III', 'avR', 'avL', 'avF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6']
@@ -239,14 +252,14 @@ def plot_wavelet_dwt(arr, w, level=6, title=None):
     cfs = pywt.wavedec(arr, w, mode='smooth', level=level)
     appr, dtls = cfs[0], cfs[1:]
     n_plot = level+2  # Original and 7 decompositions
-    cs = iter(sns.color_palette(palette='husl', n_colors=n_plot))
+    cs = iter(sns.color_palette(palette='husl', n_colors=n_plot + 1))  # Color indistinguishable to background
 
     fig = plt.figure(figsize=(2 * 4 * 2, len(dtls) * 2), constrained_layout=True)
     subfigs = fig.subfigures(1, 2)
 
     def _plot(idx_fig, idx_plt, y, label, title_=None):
         ax = subfigs[idx_fig].add_subplot(*idx_plt)
-        ax.plot(np.arange(y.size), y, marker='o', ms=0.3, c=next(cs), lw=0.25, label=label)
+        ax.plot(np.arange(y.size), y, marker='o', ms=0.5, c=next(cs), lw=0.25, label=label)
         ax.axhline(y=0, lw=0.4, c=gray)
         if title_:
             ax.set_title(title_)
@@ -265,8 +278,9 @@ def plot_wavelet_dwt(arr, w, level=6, title=None):
     _plot(0, _idx_plt(1), arr, o, title_=o)
     _plot(0, _idx_plt(n_row), appr, _c(a), title_=a)
 
-    for idx, dtl in enumerate(reversed(dtls)):
-        _plot(1, _idx_plt(idx+1), dtl, f'{_c(d)} - {idx+1}', title_=d)
+    for idx, dtl in enumerate(dtls):
+        lvl = level-idx
+        _plot(1, _idx_plt(lvl), dtl, f'{_c(d)} - {lvl}', title_=f'{d} {lvl}')
 
     t = 'Wavelet Multilevel Decomposition'
     if title:
@@ -307,10 +321,15 @@ if __name__ == '__main__':
     dg = EcgData()
     ecgs = dg('daePm.ecg')
     ecgs_norm = normalize_signal(ecgs)
+    # plot_ecg(ecgs_norm[502])
     # plot_energy(ecgs)
     # plot_max_min(ecgs_norm, k=5, cross_ch=False)
     # plot_mean(ecgs_norm)
 
     data = ecgs_norm[502][:350]
-    # plot_wavelet_dwt(data, 'db2', level=6, title='Example')
-    plot_wavelet_cwt(data, 'cmor1.5-1.0', max_scale=128, title='Example')
+    plot_wavelet_dwt(data, 'db2', level=6, title='Example')
+    # plot_wavelet_cwt(data, 'cmor1.5-1.0', max_scale=128, title='Example')
+
+    # srs = pd.Series(data={'a': 'NA', 'b': 'IM', 'c': 3})
+    # ic(srs2str(srs, ['a', 'b']))
+
